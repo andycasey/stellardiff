@@ -33,7 +33,7 @@ quality_constraints = dict(
   reduced_equivalent_width=[-10, -3],
 )
 
-spectrum_glob_mask = "twin_binaries/reduced_first_run/*.fits"
+spectrum_glob_mask = "twin_binaries/*/*.fits"
 
 get_output_path = lambda star, basename: "twin_binaries_output/{0}/{1}"\
                                          .format(star, basename)
