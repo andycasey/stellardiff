@@ -9,7 +9,7 @@ import stellardiff as sd
 sd.mpl_utils.use_style()
 
 
-spectrum = sd.spectrum.Spectrum1D.read("attic/0_sun_n.fits")
+spectrum = sd.spectrum.Spectrum1D.read("twin_binaries/standards/0_sun_n.fits")
 
 # Load in the transitions and settings.
 transitions = sd.linelist.LineList.read("sun_linelist.moog")
@@ -63,7 +63,7 @@ for i, settings in enumerate(profile_settings):
 
 
 # Load Spina results.
-spina_result_path = "attic/sun_2015_05_18-2.moog.edited"
+spina_result_path = "twin_binaries/standards/sun_2015_05_18-2.moog.edited"
 spina = sd.linelist.LineList.read(spina_result_path)
 spina["equivalent_width"] = np.loadtxt(spina_result_path, 
                                        usecols=(-1, ), skiprows=1)
@@ -89,6 +89,8 @@ ax.set_xlabel(r"$\textrm{EW}_\textrm{Spina}$ \textrm{/ m\AA}")
 ax.set_ylabel(r"$\textrm{EW}_\textrm{Auto}$ \textrm{/ m\AA}")
 
 fig.tight_layout()
+
+raise a
 
 
 # Show the K most discrepant measurements.

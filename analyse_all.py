@@ -10,7 +10,7 @@ import stellardiff as sd
 sd.mpl_utils.use_style()
 
 
-MAKE_FIGURES = False
+MAKE_FIGURES = True
 
 # Load in the transitions and settings.
 transitions = sd.linelist.LineList.read("sun_linelist.moog")
@@ -22,7 +22,6 @@ transitions["equivalent_width_err_pos"] = np.nan * np.ones(len(transitions))
 transitions["equivalent_width_err_neg"] = np.nan * np.ones(len(transitions))
 
 
-overwrite_kwds = dict(profile="gaussian")
 
 quality_constraints = dict(
   abundance=[-10, 10],
@@ -35,8 +34,9 @@ quality_constraints = dict(
 
 spectrum_glob_mask = "twin_binaries/*/*.fits"
 
-get_output_path = lambda star, basename: "twin_binaries_output/{0}/{1}"\
+get_output_path = lambda star, basename: "twin_binaries_voight_output/{0}/{1}"\
                                          .format(star, basename)
+overwrite_kwds = dict()#profile="gaussian")
 
 
 input_spectrum_path = glob(spectrum_glob_mask)
@@ -66,10 +66,15 @@ for input_spectrum in input_spectrum_path:
         
         model = sd.model_spectrum.ProfileFittingModel(transitions[tm], **kwds)
 
-        result = model.fit(spectrum)
+        try:
+            result = model.fit(spectrum)
+
+        except:
+            continue
 
         # Only use the line if it meets quality constraints.
-        if not model.meets_quality_constraints(quality_constraints):
+        if "fitted_result" not in model.metadata \
+        or not model.meets_quality_constraints(quality_constraints):
             continue
 
         # Save the equivalent width.
@@ -90,6 +95,8 @@ for input_spectrum in input_spectrum_path:
             output_path = get_output_path(star, basename)
             fig.savefig(output_path)
             print("Created figure {}".format(output_path))
+
+            plt.close("all")
 
     output_path = get_output_path(star, "linelist.moog")
     transitions.write(output_path, format="moog")

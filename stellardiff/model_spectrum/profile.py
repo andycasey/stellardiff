@@ -314,7 +314,7 @@ class ProfileFittingModel(BaseSpectralModel):
                     xdata=x[iterative_mask],
                     ydata=y[iterative_mask],
                     sigma=yerr[iterative_mask],
-                    p0=p0, absolute_sigma=absolute_sigma)
+                    p0=p0, absolute_sigma=absolute_sigma, maxfev=10000)
 
             except:
                 logger.exception(
