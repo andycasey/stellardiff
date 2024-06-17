@@ -314,7 +314,7 @@ class Spectrum1D(object):
 
         if len(image) == 2 and hdu_index == 1:
 
-            dispersion_keys = ("dispersion", "disp", "WAVELENGTH[COORD]")
+            dispersion_keys = ("dispersion", "disp", "WAVELENGTH[COORD]", "wave")
             for key in dispersion_keys:
                 try:
                     dispersion = image[hdu_index].data[key]
@@ -342,15 +342,28 @@ class Spectrum1D(object):
                     ", ".join(flux_keys)))
 
             # Try ivar, then error, then variance.
-            try:
-                ivar = image[hdu_index].data["ivar"]
-            except KeyError:
+            unc_keys = ("ivar", "err", "SPECTRUM[SIGMA]", "variance")
+            for key in unc_keys:
                 try:
-                    errs = image[hdu_index].data["SPECTRUM[SIGMA]"]
-                    ivar = 1.0/errs**2.
+                    unc = image[hdu_index].data[key]
+                    working_key = np.copy(key)
                 except KeyError:
-                    variance = image[hdu_index].data["variance"]
-                    ivar = 1.0/variance
+                    continue
+                else:
+                    break
+            else:
+                raise KeyError("could not find any uncertainty key: {}".format(
+                    ", ".join(unc_keys))) 
+                
+            # Transform uncertainty into ivar
+            if working_key == "ivar":
+                ivar = unc
+            elif np.isin(working_key, ("err", "SPECTRUM[SIGMA]")):
+                ivar = 1.0/unc**2.
+            elif working_key == "variance":
+                ivar = 1.0/unc
+            else:
+                raise KeyError("transformation from {0} to ivar failed".format(working_key))
 
         else:
             # Build a simple linear dispersion map from the headers.
